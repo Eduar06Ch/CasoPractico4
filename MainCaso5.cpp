@@ -1,47 +1,102 @@
-#include <GL/glut.h> // Incluimos la librer韆 de OPEN GL
-#include <iostream>
+#include <GL/glut.h> // Biblioteca de OpenGL
+#include <iostream> // Biblioteca de entrada y salida
+#include <math.h> // Biblioteca matem谩tica
 
-using namespace std;
+// Definir el n煤mero de lados del pol铆gono
+#define N 5
 
-// Definimos los v閞tices del pent醙ono
-GLfloat vertices[][2]={{-0.5,-0.3},{0.5,-0.3},{0.8,0.3},{0.0,0.8},{-0.8,0.3}};
+// Definir los puntos del pol铆gono
+float vertices[N][2] = {{-0.5, -0.5}, {-0.25, 0.5}, {0.25, 0.5}, {0.5, -0.5}, {0, -0.75}};
 
-// Funci髇 para dibujar el pol韌ono
-void drawPolygon(){
-    glClear(GL_COLOR_BUFFER_BIT); // Limpiamos la ventana gr醘ica
-    glMatrixMode(GL_MODELVIEW); // Seleccionamos la matriz de modelo/vista
-    glLoadIdentity(); // Cargamos la matriz identidad
-    
-    // Dibujamos el pol韌ono
-    glColor3f(1.0,0.0,0.0); // Color rojo
-    glBegin(GL_POLYGON); // Empezamos a dibujar el pol韌ono
-    for(int i=0;i<5;i++){ // Iteramos sobre los v閞tices del pent醙ono
-        glVertex2fv(vertices[i]); // Agregamos cada v閞tice al pol韌ono
+// Variables para las transformaciones
+float tx = 0, ty = 0; // Traslaci贸n
+float sx = 1, sy = 1; // Escalamiento
+float theta = 0; // Rotaci贸n
+
+// Funci贸n de dibujado
+void drawPolygon() {
+    // Limpiar la pantalla
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    // Dibujar el pol铆gono
+    glBegin(GL_POLYGON);
+    for (int i = 0; i < N; i++) {
+        glVertex2f(vertices[i][0], vertices[i][1]);
     }
-    glEnd(); // Terminamos de dibujar el pol韌ono
-    glFlush(); // Forzamos la ejecuci髇 de los comandos de OPEN GL
-    
-    // Aplicamos transformaciones
-    glTranslatef(0.5, -0.5, 0.0); // Traslaci髇
-    glScalef(0.8, 0.8, 0.8); // Escalamiento
-    glRotatef(30.0, 0.0, 0.0, 1.0); // Rotaci髇
-    
-    // Dibujamos el pol韌ono transformado
-    glColor3f(0.0,0.0,1.0); // Color azul
-    glBegin(GL_POLYGON); // Empezamos a dibujar el pol韌ono
-    for(int i=0;i<5;i++){ // Iteramos sobre los v閞tices del pent醙ono
-        glVertex2fv(vertices[i]); // Agregamos cada v閞tice al pol韌ono
-    }
-    glEnd(); // Terminamos de dibujar el pol韌ono
-    glFlush(); // Forzamos la ejecuci髇 de los comandos de OPEN GL
+    glEnd();
+
+    // Actualizar la pantalla
+    glutSwapBuffers();
 }
 
-int main(int argc, char** argv){
-    glutInit(&argc, argv); // Inicializamos GLUT
-    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB); // Definimos el modo de visualizaci髇
-    glutInitWindowSize(500, 500); // Definimos el tama駉 de la ventana
-    glutCreateWindow("Poligono"); // Creamos la ventana
-    glutDisplayFunc(drawPolygon); // Especificamos la funci髇 de dibujo
-    glutMainLoop(); // Iniciamos el ciclo de eventos de GLUT
+// Funci贸n de teclado
+void keyboard(unsigned char key, int x, int y) {
+    switch (key) {
+        // Traslaci贸n
+         case 'w':
+            ty += 0.1;
+            break;
+        case 's':
+            ty -= 0.1;
+            break;
+        case 'a':
+            tx -= 0.1;
+            break;
+        case 'd':
+            tx += 0.1;
+            break;
+        // Escalamiento
+        case '+':
+            sx += 0.1;
+            sy += 0.1;
+            break;
+        case '-':
+            sx -= 0.1;
+            sy -= 0.1;
+            break;
+        // Rotaci贸n
+        case 'r':
+            theta += 10;
+            break;
+        case 't':
+            theta -= 10;
+            break;
+    }
+    // Aplicar transformaciones
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glTranslatef(tx, ty, 0);
+    glRotatef(theta, 0, 0, 1);
+    glScalef(sx, sy, 1);
+    glutPostRedisplay();
+}
+
+// Funci贸n de inicializaci贸n
+void init() {
+    // Configurar el modo de visualizaci贸n
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluOrtho2D(-1, 1, -1, 1);
+    glMatrixMode(GL_MODELVIEW);
+}
+
+// Funci贸n principal
+int main(int argc, char** argv) {
+    // Inicializar OpenGL y GLUT
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+    glutInitWindowSize(500, 500);
+    glutCreateWindow("Pol铆gono");
+
+    // Configurar la funci贸n de dibujado y de teclado
+    glutDisplayFunc(drawPolygon);
+    glutKeyboardFunc(keyboard);
+
+    // Configurar la funci贸n de inicializaci贸n
+    init();
+
+    // Iniciar el bucle de eventos
+    glutMainLoop();
+
     return 0;
 }
